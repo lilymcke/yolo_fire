@@ -344,7 +344,7 @@ class LoadImagesAndVideos:
         - Can read from a text file containing paths to images and videos.
     """
 
-    def __init__(self, path: Union[str, Path, List], batch: int = 1, vid_stride: int = 1, channels: int = 3):
+    def __init__(self, path: Union[str, Path, List], batch: int = 1, vid_stride: int = 1, channels: int = 5):
         """
         Initialize dataloader for images and videos, supporting various input formats.
 
@@ -389,7 +389,8 @@ class LoadImagesAndVideos:
         self.mode = "video" if ni == 0 else "image"  # default to video if no images
         self.vid_stride = vid_stride  # video frame-rate stride
         self.bs = batch
-        self.cv2_flag = cv2.IMREAD_GRAYSCALE if channels == 1 else cv2.IMREAD_COLOR  # grayscale or RGB
+        self.channels = channels
+        self.cv2_flag = cv2.IMREAD_GRAYSCALE if channels == 1 else cv2.IMREAD_COLOR if channels == 3 else None # grayscale or RGB or Multispectral
         if any(videos):
             self._new_video(videos[0])  # new video
         else:
@@ -459,7 +460,15 @@ class LoadImagesAndVideos:
                     with Image.open(path) as img:
                         im0 = cv2.cvtColor(np.asarray(img), cv2.COLOR_RGB2BGR)  # convert image to BGR nparray
                 else:
-                    im0 = imread(path, flags=self.cv2_flag)  # BGR
+                    if self.channels > 3:
+                        import tifffile
+                        im0 = tifffile.imread(path)
+                        if im0.ndim == 3 and im0.shape[0] == self.channels:
+                            im0 = np.transpose(im0, (1, 2, 0))
+                        elif im0.ndim == 2:
+                            im0 = im0[..., None]
+                    else:
+                        im0 = imread(path, flags=self.cv2_flag)  # BGR
                 if im0 is None:
                     LOGGER.warning(f"Image Read Error {path}")
                 else:
@@ -513,7 +522,7 @@ class LoadPilAndNumpy:
         Loaded 2 images
     """
 
-    def __init__(self, im0: Union[Image.Image, np.ndarray, List], channels: int = 3):
+    def __init__(self, im0: Union[Image.Image, np.ndarray, List], channels: int = 5):
         """
         Initialize a loader for PIL and Numpy images, converting inputs to a standardized format.
 
@@ -525,17 +534,20 @@ class LoadPilAndNumpy:
             im0 = [im0]
         # use `image{i}.jpg` when Image.filename returns an empty path.
         self.paths = [getattr(im, "filename", "") or f"image{i}.jpg" for i, im in enumerate(im0)]
-        pil_flag = "L" if channels == 1 else "RGB"  # grayscale or RGB
-        self.im0 = [self._single_check(im, pil_flag) for im in im0]
+        pil_flag = "L" if channels == 1 else "RGB" if channels == 3 else None  # grayscale or RGB
+        self.im0 = [self._single_check(im, pil_flag, channels) for im in im0]
         self.mode = "image"
         self.bs = len(self.im0)
 
     @staticmethod
-    def _single_check(im: Union[Image.Image, np.ndarray], flag: str = "RGB") -> np.ndarray:
+    def _single_check(im: Union[Image.Image, np.ndarray], flag: str = None, channels: int=5) -> np.ndarray:
         """Validate and format an image to numpy array, ensuring RGB order and contiguous memory."""
         assert isinstance(im, (Image.Image, np.ndarray)), f"Expected PIL/np.ndarray image type, but got {type(im)}"
         if isinstance(im, Image.Image):
-            im = np.asarray(im.convert(flag))
+            if flag is not None:
+                im = np.asarray(im.convert(flag))
+            else:
+                im = np.asarray(im)
             # adding new axis if it's grayscale, and converting to BGR if it's RGB
             im = im[..., None] if flag == "L" else im[..., ::-1]
             im = np.ascontiguousarray(im)  # contiguous

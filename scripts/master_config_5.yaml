@@ -1,0 +1,52 @@
+train_masks: ['/mnt/data/MASTER/Fire/MASTERL1B_1981719_02_20190806_1851_1900_V01.fire.tif',
+              '/mnt/data/MASTER/Fire/MASTERL1B_1981719_05_20190806_2033_2039_V01.fire.tif',
+              '/mnt/data/MASTER/Fire/MASTERL1B_1981719_07_20190806_2226_2231_V01.fire.tif',
+              '/mnt/data/MASTER/Fire/MASTERL1B_1981719_08_20190806_2249_2259_V01.fire.tif',
+              '/mnt/data/MASTER/Fire/MASTERL1B_1981720_09_20190808_0237_0238_V01.fire.tif',
+              '/mnt/data/MASTER/Fire/MASTERL1B_1981721_05_20190809_0219_0226_V01.fire.tif',
+              '/mnt/data/MASTER/Fire/MASTERL1B_1981725_01_20190817_0004_0007_V01.fire.tif',
+              '/mnt/data/MASTER/Fire/MASTERL1B_1981725_02_20190817_0025_0026_V01.fire.tif',
+]
+
+val_masks:  ['/mnt/data/MASTER/Fire/MASTERL1B_1981720_07_20190808_0055_0103_V01.fire.tif'
+]
+
+test_masks: ['/mnt/data/MASTER/Fire/MASTERL1B_1981721_02_20190809_0120_0121_V01.fire.tif'
+]
+
+train_images: ['/mnt/data/MASTER/Radiances/MASTERL1B_1981719_02_20190806_1851_1900_V01.tif',
+              '/mnt/data/MASTER/Radiances/MASTERL1B_1981719_05_20190806_2033_2039_V01.tif',
+              '/mnt/data/MASTER/Radiances/MASTERL1B_1981719_07_20190806_2226_2231_V01.tif',
+              '/mnt/data/MASTER/Radiances/MASTERL1B_1981719_08_20190806_2249_2259_V01.tif',
+              '/mnt/data/MASTER/Radiances/MASTERL1B_1981720_09_20190808_0237_0238_V01.tif',
+              '/mnt/data/MASTER/Radiances/MASTERL1B_1981721_05_20190809_0219_0226_V01.tif',
+              '/mnt/data/MASTER/Radiances/MASTERL1B_1981725_01_20190817_0004_0007_V01.tif',
+              '/mnt/data/MASTER/Radiances/MASTERL1B_1981725_02_20190817_0025_0026_V01.tif',
+]
+
+
+val_images: ['/mnt/data/MASTER/Radiances/MASTERL1B_1981720_07_20190808_0055_0103_V01.tif'
+]
+
+test_images: ['/mnt/data/MASTER/Radiances/MASTERL1B_1981721_02_20190809_0120_0121_V01.tif'
+]
+
+output_dir: '/mnt/data/MASTER/detectOutputs/segment_5_channels'
+
+tile_size: 160
+
+step_size: 80
+
+model: 'yolo11n-seg-fire-5.yaml'
+
+pretrained: False
+
+epochs: 100
+
+save_test_tiles: False
+
+confidence: 0.01
+
+invalid_val: -9999.0
+
+channels:  [11, 22, 29, 30, 31]

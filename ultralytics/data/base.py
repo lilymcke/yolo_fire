@@ -82,7 +82,7 @@ class BaseDataset(Dataset):
         single_cls: bool = False,
         classes: Optional[List[int]] = None,
         fraction: float = 1.0,
-        channels: int = 3,
+        channels: int = 5,
     ):
         """
         Initialize BaseDataset with given configuration and options.
@@ -111,7 +111,7 @@ class BaseDataset(Dataset):
         self.prefix = prefix
         self.fraction = fraction
         self.channels = channels
-        self.cv2_flag = cv2.IMREAD_GRAYSCALE if channels == 1 else cv2.IMREAD_COLOR
+        self.cv2_flag = cv2.IMREAD_GRAYSCALE if channels == 1 else cv2.IMREAD_COLOR if channels == 3 else None
         self.im_files = self.get_img_files(self.img_path)
         self.labels = self.get_labels()
         self.update_labels(include_class=classes)  # single_cls and include_class
@@ -231,9 +231,17 @@ class BaseDataset(Dataset):
                 except Exception as e:
                     LOGGER.warning(f"{self.prefix}Removing corrupt *.npy image file {fn} due to: {e}")
                     Path(fn).unlink(missing_ok=True)
-                    im = imread(f, flags=self.cv2_flag)  # BGR
+                    if self.channels > 3:
+                        import tifffile
+                        im = tifffile.imread(f)
+                    else:
+                        im = imread(f, flags=self.cv2_flag)  # BGR
             else:  # read image
-                im = imread(f, flags=self.cv2_flag)  # BGR
+                if self.channels > 3:
+                    import tifffile
+                    im = tifffile.imread(f)
+                else:
+                    im = imread(f, flags=self.cv2_flag)  # BGR
             if im is None:
                 raise FileNotFoundError(f"Image Not Found {f}")
 
