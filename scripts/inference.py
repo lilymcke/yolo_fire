@@ -1,23 +1,19 @@
+import time
 from ultralytics import YOLO
-import os
 import numpy as np
-import cv2
 import tifffile
-from PIL import Image
 import os
 from skimage.util.shape import view_as_windows
 import yaml
-from torchvision.transforms import v2
-import torch
 import argparse
-import time
+
+t0 = time.time()
+
 
 class MyImage(np.ndarray):
     pass
 
 times = []
-
-t0 = time.time()
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-y", "--yaml", type=str, help="yaml config file")

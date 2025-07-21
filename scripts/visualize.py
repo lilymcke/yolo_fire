@@ -30,38 +30,39 @@ for file in os.listdir(result_dir):
     filepath = os.path.join(result_dir, file)
     path, filename = os.path.split(filepath)
     name, ext = os.path.splitext(filename)
-    print(name)
+    if ext == '.txt':
+        print(name)
+    
+        im_file = os.path.join(image_tiles_dir, name+'.tif')
+        image = tifffile.imread(im_file)
 
-    im_file = os.path.join(image_tiles_dir, name+'.tif')
-    image = tifffile.imread(im_file)
+        txt_path = os.path.join(filepath)
+        tile = np.zeros((tile_size, tile_size))
+        if os.path.exists(txt_path):
+            txt_file = open(txt_path)
+            labels = txt_file.readlines()
 
-    txt_path = os.path.join(filepath)
-    tile = np.zeros((tile_size, tile_size))
-    if os.path.exists(txt_path):
-        txt_file = open(txt_path)
-        labels = txt_file.readlines()
+            for row in range(len(labels)):
+                label = labels[row].split()
+                class_ = label[0]
+                conf = label[-1]
+                print(conf)
+                coords = list(map(float, label[1:-1]))
+                if len(coords) != 0:
+                    polygon_coords = []
+                    for i in range(0, len(coords), 2):
+                        polygon_coords.append([int(coords[i]*(tile_size)), int(coords[i+1]*(tile_size))])
+                    polygon_coords = np.array(polygon_coords)
+                    row, col = polygon(polygon_coords[:,1], polygon_coords[:,0])
+                    tile[row, col] = 1
 
-        for row in range(len(labels)):
-            label = labels[row].split()
-            class_ = label[0]
-            conf = label[-1]
-            print(conf)
-            coords = list(map(float, label[1:-1]))
-            if len(coords) != 0:
-                polygon_coords = []
-                for i in range(0, len(coords), 2):
-                    polygon_coords.append([int(coords[i]*(tile_size)), int(coords[i+1]*(tile_size))])
-                polygon_coords = np.array(polygon_coords)
-                row, col = polygon(polygon_coords[:,1], polygon_coords[:,0])
-                tile[row, col] = 1
+        result_masks.append(tile.copy())
 
-    result_masks.append(tile.copy())
+        tile[tile==0] = np.nan
 
-    tile[tile==0] = np.nan
-
-    plt.figure(dpi=200)
-    plt.imshow(image[:,:,0], vmin=0, vmax=255, cmap='gray')
-    plt.imshow(tile*255, cmap='Reds', vmin=0, vmax=255, alpha=0.5)
-    plt.axis('off')
-    plt.savefig(os.path.join(result_png_dir, name+'.png'), bbox_inches='tight', transparent=True)
-    plt.close()
+        plt.figure(dpi=200)
+        plt.imshow(image[:,:,0], vmin=0, vmax=255, cmap='gray')
+        plt.imshow(tile*255, cmap='Reds', vmin=0, vmax=255, alpha=0.5)
+        plt.axis('off')
+        plt.savefig(os.path.join(result_png_dir, name+'.png'), bbox_inches='tight', transparent=True)
+        plt.close()
