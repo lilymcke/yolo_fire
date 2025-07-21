@@ -34,7 +34,6 @@ output_dir = data['output_dir']
 
 tile_size= data['tile_size']
 step_size = data['step_size']
-save_test_tiles = data['save_test_tiles']
 confidence = data['confidence']
 
 invalid_val = data['invalid_val']

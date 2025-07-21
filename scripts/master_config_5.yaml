@@ -43,8 +43,6 @@ pretrained: False
 
 epochs: 100
 
-save_test_tiles: False
-
 confidence: 0.01
 
 invalid_val: -9999.0
