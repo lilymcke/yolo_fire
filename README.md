@@ -100,5 +100,6 @@ Or if there are no ground truth labels
 ```python
 python3 visualize.py -y config.yaml -r <path to detected labels>
 ```
+Result pngs will be saved to runs/segment/predict#/labels directory
 
 Or transfer test images and labels to local maachine and use postprocessing.ipynb
