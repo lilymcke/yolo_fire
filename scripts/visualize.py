@@ -26,17 +26,16 @@ result_png_dir = os.path.join(result_dir, "result_pngs")
 os.makedirs(result_png_dir , exist_ok=True)
 
 result_masks = []
-for file in os.listdir(result_dir):
-    filepath = os.path.join(result_dir, file)
+for file in os.listdir(image_tiles_dir):
+    filepath = os.path.join(image_tiles_dir, file)
     path, filename = os.path.split(filepath)
     name, ext = os.path.splitext(filename)
-    if ext == '.txt':
+    if ext == '.tif':
         print(name)
-    
-        im_file = os.path.join(image_tiles_dir, name+'.tif')
-        image = tifffile.imread(im_file)
 
-        txt_path = os.path.join(filepath)
+        image = tifffile.imread(filepath)
+
+        txt_path = os.path.join(result_dir, f'{name}.txt')
         tile = np.zeros((tile_size, tile_size))
         if os.path.exists(txt_path):
             txt_file = open(txt_path)
