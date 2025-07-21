@@ -1,7 +1,7 @@
 # YOLO11 for detecting wildfires with multispectral imagery
 
 ## Installation
-
+More info: https://docs.ultralytics.com/tasks/segment/
 
 ```python
 git clone https://github.com/lilymcke/yolo_fire.git
