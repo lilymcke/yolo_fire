@@ -7,6 +7,7 @@ More info: https://docs.ultralytics.com/tasks/segment/
 git clone https://github.com/lilymcke/yolo_fire.git
 cd yolo_fire
 conda env create -f environment.yaml
+conda activate yolo_fire
 ```
 
 ## Preprocess Data
