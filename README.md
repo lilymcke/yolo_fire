@@ -56,7 +56,7 @@ channels:  list. channels to use in multispectral image
 
 
 ```python
-python3 preprocess.py -y config.yaml
+python3 preprocess.py -y configs/config.yaml
 ```
 
 Will convert label tifs to pngs then translate them to yolo label format
@@ -65,7 +65,7 @@ Will convert label tifs to pngs then translate them to yolo label format
 
 
 ```python
-python3 train.py -y config.yaml
+python3 train.py -y configs/config.yaml
 ```
 
 More adjustable training settings here: https://docs.ultralytics.com/modes/train/
@@ -76,29 +76,29 @@ More predict setting here: https://docs.ultralytics.com/modes/predict/
 
 
 ```python
-python3 inference.py -y config.yaml
+python3 inference.py -y configs/config.yaml
 ```
 
 Will automatically save output detected labels to runs/segment/predict#. note this path.
 
-Note: if you ran more than one training on a preprocessed dataset, make sure to change the path to the correct trained model on line 69 in train.py
+Note: if you ran more than one training on a preprocessed dataset, make sure to change the path to the correct trained model on line 42 in inference.py
 
 ## Postprocess
 Inference will output labels in .txt files for images where fires are detected. To visualize these labels and quantify performance run:
 
 
 ```python
-python3 postprocess.py -y config.yaml -r <path to detected labels>
+python3 postprocess.py -y configs/config.yaml -r <path to detected labels>
 
 # Example:
-python3 postprocess.py - y master_config.yaml - r runs/segment/predict/labels
+python3 postprocess.py - y configs/master_new.yaml - r runs/segment/predict/labels
 ```
 
 Or if there are no ground truth labels
 
 
 ```python
-python3 visualize.py -y config.yaml -r <path to detected labels>
+python3 visualize.py -y configs/config.yaml -r <path to detected labels>
 ```
 Result pngs will be saved to runs/segment/predict#/labels directory
 
