@@ -81,7 +81,7 @@ python3 inference.py -y configs/config.yaml
 
 Will automatically save output detected labels to runs/segment/predict#. note this path.
 
-Note: if you ran more than one training on a preprocessed dataset, make sure to change the path to the correct trained model on line 69 in train.py
+Note: if you ran more than one training on a preprocessed dataset, make sure to change the path to the correct trained model on line 42 in inference.py
 
 ## Postprocess
 Inference will output labels in .txt files for images where fires are detected. To visualize these labels and quantify performance run:
