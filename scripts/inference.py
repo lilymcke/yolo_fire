@@ -3,17 +3,13 @@ from ultralytics import YOLO
 import numpy as np
 import tifffile
 import os
+import shutil
 from skimage.util.shape import view_as_windows
 import yaml
 import argparse
 
-t0 = time.time()
-
-
 class MyImage(np.ndarray):
     pass
-
-times = []
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-y", "--yaml", type=str, help="yaml config file")
@@ -36,13 +32,21 @@ invalid_val = data['invalid_val']
 channels = data['channels']
 num_channels = int(len(channels))
 
-output_dir_images_test = os.path.join(output_dir, "dataInput/images/test")
-os.makedirs(output_dir_images_test, exist_ok=True)
+# Directory where image tiles are saved before they are used in the inference - overwrites each time this script is run
+output_dir_images_test = os.path.join(output_dir, "dataInput/images/inference")
+if os.path.exists(output_dir_images_test):
+    shutil.rmtree(output_dir_images_test)
 
-# tile test images
-for filepath in test_images:
+os.makedirs(output_dir_images_test)
+
+model = YOLO(os.path.join(output_dir, 'trainOutput/weights/best.pt'))
+
+times = []
+for k, filepath in enumerate(test_images):
+    t0 = time.time()
     path, filename = os.path.split(filepath)
     name, ext = os.path.splitext(filename)
+
     img_50 = tifffile.imread(filepath)
     img_50[img_50 == invalid_val] = 0
 
@@ -61,23 +65,25 @@ for filepath in test_images:
     tiled_img = view_as_windows(img_pad, (tile_size,tile_size,num_channels), step=step_size).squeeze()
     print('Tiled:', name, 'Shape:', np.shape(tiled_img))
 
-    model = YOLO(os.path.join(output_dir, 'trainOutput/weights/best.pt'))
+    tiles_path = os.path.join(output_dir_images_test, f"image_{k+1}")
+    os.makedirs(tiles_path, exist_ok=True)
 
-    time_elapsed = time.time() - t0
-    print('Time for loading and tiling imge:', time_elapsed*1000, 'ms')
-
-    print('RUNNING YOLO INFERENCE')
     for i in range(len(tiled_img[:,0,0,0,0])):
         for j in range(len(tiled_img[0,:,0,0,0])):
             img_tile = (tiled_img[i,j,:,:,:] * 255).astype(np.uint8)
 
-            path = os.path.join(output_dir_images_test, f"{name}.fire_{i}_{j}.tif")
+            path = os.path.join(output_dir_images_test, f"image_{k+1}/{name}.fire_{i}_{j}.tif")
             tifffile.imwrite(path, img_tile, planarconfig='contig')
 
-            model.predict(path, imgsz=tile_size, save=False, save_txt=True, save_conf=True, conf=confidence, retina_masks=True)
+    time_elapsed = time.time() - t0
+    print(f'Time for loading and tiling image {k+1}:', time_elapsed*1000, 'ms')
+
+    print('RUNNING YOLO INFERENCE')
+
+    model.predict(tiles_path, imgsz=tile_size, save=False, save_txt=True, save_conf=True, conf=confidence, retina_masks=True, batch=16)
 
     time_elapsed = time.time() - t0
-    print('Inference Test Image:', time_elapsed*1000, 'ms')
+    print(f'Total time for inference on test image {k+1}:', time_elapsed*1000, 'ms')
     times.append(time_elapsed)
 
 print('Average Time:', np.mean(times), 's')
