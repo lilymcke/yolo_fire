@@ -123,8 +123,8 @@ def scale_boxes(img1_shape, boxes, img0_shape, ratio_pad=None, padding: bool = T
     if ratio_pad is None:  # calculate from img0_shape
         gain = min(img1_shape[0] / img0_shape[0], img1_shape[1] / img0_shape[1])  # gain  = old / new
         pad = (
-            round((img1_shape[1] - img0_shape[1] * gain) / 2 - 0.1),
-            round((img1_shape[0] - img0_shape[0] * gain) / 2 - 0.1),
+            torch.round((img1_shape[1] - img0_shape[1] * gain) / 2 - 0.1),
+            torch.round((img1_shape[0] - img0_shape[0] * gain) / 2 - 0.1),
         )  # wh padding
     else:
         gain = ratio_pad[0][0]
@@ -405,10 +405,10 @@ def scale_image(masks, im0_shape, ratio_pad=None):
     else:
         pad = ratio_pad[1]
 
-    top, left = (int(round(pad[1] - 0.1)), int(round(pad[0] - 0.1)))
+    top, left = (int(torch.round(pad[1] - 0.1)), int(torch.round(pad[0] - 0.1)))
     bottom, right = (
-        im1_shape[0] - int(round(pad[1] + 0.1)),
-        im1_shape[1] - int(round(pad[0] + 0.1)),
+        im1_shape[0] - int(torch.round(pad[1] + 0.1)),
+        im1_shape[1] - int(torch.round(pad[0] + 0.1)),
     )
 
     if len(masks.shape) < 2:
@@ -760,10 +760,10 @@ def scale_masks(masks, shape, padding: bool = True):
     if padding:
         pad[0] /= 2
         pad[1] /= 2
-    top, left = (int(round(pad[1] - 0.1)), int(round(pad[0] - 0.1))) if padding else (0, 0)  # y, x
+    top, left = (int(torch.round(pad[1] - 0.1)), int(torch.round(pad[0] - 0.1))) if padding else (0, 0)  # y, x
     bottom, right = (
-        mh - int(round(pad[1] + 0.1)),
-        mw - int(round(pad[0] + 0.1)),
+        mh - int(torch.round(pad[1] + 0.1)),
+        mw - int(torch.round(pad[0] + 0.1)),
     )
     masks = masks[..., top:bottom, left:right]
 
