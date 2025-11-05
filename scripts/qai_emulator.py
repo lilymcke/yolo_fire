@@ -29,11 +29,11 @@ model = YOLO(model=path)
 model.eval()
 
 # Step 1: Trace model
-input_shape = (16, num_channels, tile_size, tile_size)
+input_shape = (1, num_channels, tile_size, tile_size)
 example_input = torch.rand(input_shape)
 
 # Export the model to TorchScript format
-fn = model.export(format="torchscript")  # creates 'yolo11n.torchscript'
+fn = model.export(format="torchscript", half=False)  # creates 'yolo11n.torchscript'
      
 
 # Load the exported TorchScript model
@@ -55,7 +55,7 @@ profile_job = hub.submit_profile_job(
 )
 
 
-example_input = np.random.uniform(-1,1,(16,3,160,160)).astype(np.float32)
+example_input = np.random.uniform(-1,1,(1,3,160,160)).astype(np.float32)
 # Run inference using the on-device model on the input image
 inference_job = hub.submit_inference_job(
     model=target_model,
@@ -67,7 +67,6 @@ on_device_output = inference_job.download_output_data()
 # Step 5: Post-processing the on-device output
 output_name = list(on_device_output.keys())[0]
 out = on_device_output[output_name][0]
-on_device_probabilities = np.exp(out) / np.sum(np.exp(out), axis=1)
 
 # Step 6: Download model
 target_model = compile_job.get_target_model()
