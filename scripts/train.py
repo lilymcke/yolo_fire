@@ -18,6 +18,19 @@ tile_size= data['tile_size']
 model_name = data['model']
 pretrain = data['pretrained']
 
+
+tracker = None
+if 'estimate_footprint' in data and data['estimate_footprint']:
+    from codecarbon import EmissionsTracker
+    tracker = EmissionsTracker()
+    tracker.start()
+ 
+
 model = YOLO(model_name)
 
 results = model.train(data=os.path.join(output_dir, "dataInput/yolo_config.yaml"), epochs=num_epochs, imgsz=tile_size, project=output_dir, name='trainOutput', mask_ratio=1, plots=False, pretrained=pretrain, single_cls=True, hsv_h=0, hsv_s=0, hsv_v=0)
+
+
+if tracker is not None:
+    tracker.stop()
+

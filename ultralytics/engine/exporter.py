@@ -559,12 +559,12 @@ class Exporter:
             LOGGER.warning(f"{prefix} >300 images recommended for INT8 calibration, found {n} images.")
         return build_dataloader(dataset, batch=self.args.batch, workers=0, drop_last=True)  # required for batch loading
 
+
     @try_export
     def export_torchscript(self, prefix=colorstr("TorchScript:")):
         """Export YOLO model to TorchScript format."""
         LOGGER.info(f"\n{prefix} starting export with torch {torch.__version__}...")
         f = self.file.with_suffix(".torchscript")
-
         ts = torch.jit.trace(NMSModel(self.model, self.args) if self.args.nms else self.model, self.im, strict=False)
         extra_files = {"config.txt": json.dumps(self.metadata)}  # torch._C.ExtraFilesMap()
         if self.args.optimize:  # https://pytorch.org/tutorials/recipes/mobile_interpreter.html
@@ -1516,7 +1516,8 @@ class NMSModel(torch.nn.Module):
         from torchvision.ops import nms
 
         preds = self.model(x)
-        pred = preds[0] if isinstance(preds, tuple) else preds
+        pred = preds[0] if (isinstance(preds, tuple) or isinstance(preds, list)) else preds
+
         kwargs = dict(device=pred.device, dtype=pred.dtype)
         bs = pred.shape[0]
         pred = pred.transpose(-1, -2)  # shape(1,84,6300) to shape(1,6300,84)

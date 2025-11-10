@@ -4,6 +4,13 @@ import argparse
 import yaml
 import os
 from calflops import calculate_flops
+from codecarbon import EmissionsTracker
+
+
+
+tracker = EmissionsTracker()
+tracker.start()
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-y", "--yaml", type=str, help="yaml config file")
@@ -37,3 +44,6 @@ print("FLOPs:%s   MACs:%s   Params:%s \n" %(flops, macs, params))
 print("FLOPs:", flops)
 print("MACs:", macs)
 print("Params:", params)
+
+tracker.stop()
+
