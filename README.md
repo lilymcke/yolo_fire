@@ -1,3 +1,5 @@
+This project utilizes code from [Ultralytics YOLO](https://github.com/ultralytics/ultralytics), licensed under AGPL-3.0.
+
 # YOLO11 for detecting wildfires with multispectral imagery
 More info: https://docs.ultralytics.com/tasks/segment/
 
@@ -103,3 +105,4 @@ python3 visualize.py -y configs/config.yaml -r <path to detected labels>
 Result pngs will be saved to runs/segment/predict#/labels directory
 
 Or transfer test images and labels to local maachine and use postprocessing.ipynb
+
