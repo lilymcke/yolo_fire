@@ -53,7 +53,7 @@ for filepath in train_masks:
         pad_x = tile_size - untiled_x
         mask_pad = np.pad(mask, ((0,pad_y), (0,pad_x)), mode='constant', constant_values=0)
         tiled_mask = view_as_windows(mask_pad, (tile_size,tile_size), step=step_size)
-        print('Tiled:', name, 'Shape:', np.shape(tiled_mask))
+        print('Tiled:', name, 'Shape:', np.shape(tiled_mask), mask.shape)
 
         for i in range(len(tiled_mask[:,0,0,0])):
             for j in range(len(tiled_mask[0,:,0,0])):
@@ -83,7 +83,7 @@ for filepath in train_images:
     pad_x = tile_size - untiled_x
     img_pad = np.pad(img_3, ((0,pad_y), (0,pad_x), (0,0)), mode='constant', constant_values=0)
     tiled_img = view_as_windows(img_pad, (tile_size,tile_size,num_channels), step=step_size).squeeze()
-    print('Tiled:', name, 'Shape:', np.shape(tiled_img))
+    print('Tiled:', name, 'Shape:', np.shape(tiled_img), img_50.shape)
 
     for i in range(len(tiled_img[:,0,0,0,0])):
         for j in range(len(tiled_img[0,:,0,0,0])):
@@ -294,10 +294,13 @@ for f in range(len(tile_names_val)):
 
 # save test pngs
 for f in range(len(tile_names_test)):
-    mask = all_test_masks[f].astype(np.uint8)
+    print("HERE MASK", all_test_masks[f].min(), all_test_masks[f].max())
+    mask = all_test_masks[f].astype(np.uint8) 
+    print("HERE MASK2", all_test_masks[f].min(), all_test_masks[f].max())
     path = os.path.join(png_dir_test, f"{tile_names_test[f]}.png")
     cv2.imwrite(path, mask)
-
+    path = os.path.join(png_dir_test, f"{tile_names_test[f]}.tif")
+    tifffile.imwrite(path, mask, planarconfig='contig')
 print('SAVED MASKS AS PNGS')
 
 # convert binary TRAIN masks to YOLO format

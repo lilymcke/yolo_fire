@@ -37,16 +37,19 @@ for file in os.listdir(image_tiles_dir):
 
         txt_path = os.path.join(result_dir, f'{name}.txt')
         tile = np.zeros((tile_size, tile_size))
+        print(txt_path)
         if os.path.exists(txt_path):
             txt_file = open(txt_path)
             labels = txt_file.readlines()
 
+            print(txt_path, len(labels))
             for row in range(len(labels)):
                 label = labels[row].split()
                 class_ = label[0]
                 conf = label[-1]
                 print(conf)
                 coords = list(map(float, label[1:-1]))
+                print(len(coords))
                 if len(coords) != 0:
                     polygon_coords = []
                     for i in range(0, len(coords), 2):
@@ -57,11 +60,22 @@ for file in os.listdir(image_tiles_dir):
 
         result_masks.append(tile.copy())
 
-        tile[tile==0] = np.nan
+        tile[tile < 1] = 0
+        tile[tile > 1] = 1
 
         plt.figure(dpi=200)
+        print(tile.min(), tile.max(), tile.mean())
+
         plt.imshow(image[:,:,0], vmin=0, vmax=255, cmap='gray')
         plt.imshow(tile*255, cmap='Reds', vmin=0, vmax=255, alpha=0.5)
         plt.axis('off')
         plt.savefig(os.path.join(result_png_dir, name+'.png'), bbox_inches='tight', transparent=True)
         plt.close()
+
+
+        path = os.path.join(result_png_dir, f"{name}.tif")
+        tifffile.imwrite(path, image, planarconfig='contig')
+        path = os.path.join(result_png_dir, f"{name}.label.tif")
+
+        tifffile.imwrite(path, tile.astype(np.int16), planarconfig='contig')
+ 
